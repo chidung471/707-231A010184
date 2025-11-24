@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bài tập 3 - Đồng hồ đếm ngược</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="nav-brand">707-MSSV</div>
+            <ul class="nav-menu">
+                <li><a href="index.html">Trang chủ</a></li>
+                <li><a href="baitap01.html">Bài tập 1</a></li>
+                <li><a href="baitap02.html">Bài tập 2</a></li>
+                <li><a href="baitap03.html" class="active">Bài tập 3</a></li>
+                <li><a href="about.html">Giới thiệu</a></li>
+                <li><a href="contact.html">Liên hệ</a></li>
+            </ul>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container">
+        <h1>Đồng hồ đếm ngược</h1>
+        
+        <div class="countdown-container">
+            <div class="countdown-display" id="countdownDisplay">
+                <span class="minutes">10</span>:<span class="seconds">00</span>
+            </div>
+            
+            <div class="countdown-controls">
+                <button onclick="startCountdown()" class="btn btn-primary" id="startBtn">Bắt đầu</button>
+                <button onclick="pauseCountdown()" class="btn btn-secondary" id="pauseBtn" disabled>Tạm dừng</button>
+                <button onclick="resetCountdown()" class="btn btn-danger" id="resetBtn">Đặt lại</button>
+            </div>
+            
+            <div class="countdown-progress">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="countdown-info">
+            <h3>Thông tin đồng hồ:</h3>
+            <p id="countdownStatus">Trạng thái: Chưa bắt đầu</p>
+            <p id="serverTime">Thời gian server: Đang tải...</p>
+        </div>
+    </main>
+
+    <!-- Modal khi hết giờ -->
+    <div id="timeoutModal" class="modal">
+        <div class="modal-content">
+            <h2>Hết giờ! ⏰</h2>
+            <p>Thời gian đếm ngược đã kết thúc.</p>
+            <button onclick="closeModal()" class="btn btn-primary">Đóng</button>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 707-MSSV. All rights reserved.</p>
+    </footer>
+
+    <script>
+        let countdownInterval;
+        let remainingTime = 10 * 60; // 10 phút tính bằng giây
+        let isRunning = false;
+        let isPaused = false;
+
+        // Cập nhật hiển thị đồng hồ
+        function updateDisplay() {
+            const minutes = Math.floor(remainingTime / 60);
+            const seconds = remainingTime % 60;
+            
+            document.querySelector('.minutes').textContent = minutes.toString().padStart(2, '0');
+            document.querySelector('.seconds').textContent = seconds.toString().padStart(2, '0');
+            
+            // Cập nhật progress bar
+            const totalTime = 10 * 60;
+            const progress = ((totalTime - remainingTime) / totalTime) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+            
+            // Thêm animation khi dưới 1 phút
+            if (remainingTime <= 60) {
+                document.getElementById('countdownDisplay').classList.add('warning');
+            } else {
+                document.getElementById('countdownDisplay').classList.remove('warning');
+            }
+            
+            // Cập nhật trạng thái
+            updateStatus();
+        }
+
+        // Cập nhật trạng thái
+        function updateStatus() {
+            const statusElement = document.getElementById('countdownStatus');
+            if (isRunning) {
+                statusElement.textContent = `Trạng thái: Đang chạy - Còn lại: ${Math.floor(remainingTime / 60)}:${(remainingTime % 60).toString().padStart(2, '0')}`;
+            } else if (isPaused) {
+                statusElement.textContent = `Trạng thái: Tạm dừng - Còn lại: ${Math.floor(remainingTime / 60)}:${(remainingTime % 60).toString().padStart(2, '0')}`;
+            } else {
+                statusElement.textContent = 'Trạng thái: Chưa bắt đầu';
+            }
+        }
+
+        // Bắt đầu đếm ngược
+        function startCountdown() {
+            if (isRunning) return;
+            
+            isRunning = true;
+            isPaused = false;
+            
+            document.getElementById('startBtn').disabled = true;
+            document.getElementById('pauseBtn').disabled = false;
+            document.getElementById('resetBtn').disabled = false;
+            
+            countdownInterval = setInterval(() => {
+                remainingTime--;
+                updateDisplay();
+                
+                if (remainingTime <= 0) {
+                    clearInterval(countdownInterval);
+                    isRunning = false;
+                    showTimeoutModal();
+                }
+            }, 1000);
+            
+            updateStatus();
+        }
+
+        // Tạm dừng đếm ngược
+        function pauseCountdown() {
+            if (!isRunning) return;
+            
+            clearInterval(countdownInterval);
+            isRunning = false;
+            isPaused = true;
+            
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('pauseBtn').disabled = true;
+            
+            updateStatus();
+        }
+
+        // Đặt lại đồng hồ
+        function resetCountdown() {
+            clearInterval(countdownInterval);
+            remainingTime = 10 * 60;
+            isRunning = false;
+            isPaused = false;
+            
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('pauseBtn').disabled = true;
+            document.getElementById('resetBtn').disabled = false;
+            document.getElementById('countdownDisplay').classList.remove('warning');
+            
+            updateDisplay();
+            updateStatus();
+        }
+
+        // Hiển thị modal khi hết giờ
+        function showTimeoutModal() {
+            const modal = document.getElementById('timeoutModal');
+            modal.style.display = 'flex';
+            
+            // Thêm hiệu ứng âm thanh (trong thực tế)
+            // const audio = new Audio('timeout-sound.mp3');
+            // audio.play();
+        }
+
+        // Đóng modal
+        function closeModal() {
+            const modal = document.getElementById('timeoutModal');
+            modal.style.display = 'none';
+            resetCountdown();
+        }
+
+        // Lấy thời gian server (giả lập)
+        function getServerTime() {
+            // Trong thực tế, sẽ gọi API để lấy thời gian server chính xác
+            const now = new Date();
+            return now.toLocaleTimeString('vi-VN');
+        }
+
+        // Cập nhật thời gian server
+        function updateServerTime() {
+            document.getElementById('serverTime').textContent = `Thời gian server: ${getServerTime()}`;
+        }
+
+        // Cleanup interval khi trang đóng
+        window.addEventListener('beforeunload', function() {
+            clearInterval(countdownInterval);
+        });
+
+        // Khởi tạo
+        document.addEventListener('DOMContentLoaded', function() {
+            updateDisplay();
+            updateServerTime();
+            
+            // Cập nhật thời gian server mỗi giây
+            setInterval(updateServerTime, 1000);
+            
+            // Đóng modal khi click bên ngoài
+            window.addEventListener('click', function(event) {
+                const modal = document.getElementById('timeoutModal');
+                if (event.target === modal) {
+                    closeModal();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

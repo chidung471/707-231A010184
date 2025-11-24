@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bài tập 2 - Form đăng ký</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="nav-brand">707-MSSV</div>
+            <ul class="nav-menu">
+                <li><a href="index.html">Trang chủ</a></li>
+                <li><a href="baitap01.html">Bài tập 1</a></li>
+                <li><a href="baitap02.html" class="active">Bài tập 2</a></li>
+                <li><a href="baitap03.html">Bài tập 3</a></li>
+                <li><a href="about.html">Giới thiệu</a></li>
+                <li><a href="contact.html">Liên hệ</a></li>
+            </ul>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container">
+        <h1>Đăng ký tài khoản</h1>
+        
+        <form id="registrationForm" class="registration-form">
+            <div class="form-group">
+                <label for="name">Họ và tên:</label>
+                <input type="text" id="name" name="name" required>
+                <span class="error-message" id="nameError"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+                <span class="error-message" id="emailError"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Mật khẩu:</label>
+                <input type="password" id="password" name="password" required>
+                <span class="error-message" id="passwordError"></span>
+                <div class="password-requirements">
+                    Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường và số
+                </div>
+            </div>
+
+            <div class="form-group checkbox-group">
+                <input type="checkbox" id="terms" name="terms" required>
+                <label for="terms">Tôi đồng ý với các điều khoản và điều kiện</label>
+                <span class="error-message" id="termsError"></span>
+            </div>
+
+            <button type="submit" class="submit-btn">Đăng ký</button>
+        </form>
+
+        <div id="successMessage" class="success-message" style="display: none;"></div>
+
+        <div class="registered-users">
+            <h3>Người dùng đã đăng ký:</h3>
+            <div id="usersList"></div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 707-MSSV. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Validation functions
+        function validateName(name) {
+            const nameRegex = /^[a-zA-ZÀ-ỹ\s]{2,50}$/;
+            return nameRegex.test(name.trim());
+        }
+
+        function validateEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email.trim());
+        }
+
+        function validatePassword(password) {
+            const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+            return passwordRegex.test(password);
+        }
+
+        // Display error message
+        function showError(elementId, message) {
+            const errorElement = document.getElementById(elementId);
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+        }
+
+        // Hide error message
+        function hideError(elementId) {
+            const errorElement = document.getElementById(elementId);
+            errorElement.textContent = '';
+            errorElement.style.display = 'none';
+        }
+
+        // Format data before saving
+        function sanitizeInput(input) {
+            return input.trim().replace(/[<>&"']/g, '');
+        }
+
+        // Save user to LocalStorage
+        function saveUser(userData) {
+            const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+            users.push({
+                ...userData,
+                id: Date.now(),
+                registeredAt: new Date().toISOString()
+            });
+            localStorage.setItem('registeredUsers', JSON.stringify(users));
+        }
+
+        // Load users from LocalStorage
+        function loadUsers() {
+            const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+            const usersList = document.getElementById('usersList');
+            
+            if (users.length === 0) {
+                usersList.innerHTML = '<p>Chưa có người dùng nào đăng ký.</p>';
+                return;
+            }
+            
+            usersList.innerHTML = users.map(user => `
+                <div class="user-card">
+                    <strong>${user.name}</strong>
+                    <span>${user.email}</span>
+                    <small>Đăng ký: ${new Date(user.registeredAt).toLocaleDateString('vi-VN')}</small>
+                </div>
+            `).join('');
+        }
+
+        // Form submission handler
+        document.getElementById('registrationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const terms = document.getElementById('terms').checked;
+
+            let isValid = true;
+
+            // Validate name
+            if (!validateName(name)) {
+                showError('nameError', 'Tên phải từ 2-50 ký tự và chỉ chứa chữ cái');
+                isValid = false;
+            } else {
+                hideError('nameError');
+            }
+
+            // Validate email
+            if (!validateEmail(email)) {
+                showError('emailError', 'Email không hợp lệ');
+                isValid = false;
+            } else {
+                hideError('emailError');
+            }
+
+            // Validate password
+            if (!validatePassword(password)) {
+                showError('passwordError', 'Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường và số');
+                isValid = false;
+            } else {
+                hideError('passwordError');
+            }
+
+            // Validate terms
+            if (!terms) {
+                showError('termsError', 'Bạn phải đồng ý với điều khoản');
+                isValid = false;
+            } else {
+                hideError('termsError');
+            }
+
+            if (isValid) {
+                // Sanitize data
+                const sanitizedData = {
+                    name: sanitizeInput(name),
+                    email: sanitizeInput(email),
+                    // In real application, password should be hashed
+                    password: password // In production, never store plain text passwords
+                };
+
+                // Save to LocalStorage
+                saveUser(sanitizedData);
+
+                // Show success message
+                const successMessage = document.getElementById('successMessage');
+                successMessage.textContent = 'Đăng ký thành công!';
+                successMessage.style.display = 'block';
+
+                // Reset form
+                this.reset();
+
+                // Reload users list
+                loadUsers();
+
+                // Hide success message after 5 seconds
+                setTimeout(() => {
+                    successMessage.style.display = 'none';
+                }, 5000);
+            }
+        });
+
+        // Real-time validation
+        document.getElementById('name').addEventListener('blur', function() {
+            if (!validateName(this.value)) {
+                showError('nameError', 'Tên phải từ 2-50 ký tự và chỉ chứa chữ cái');
+            } else {
+                hideError('nameError');
+            }
+        });
+
+        document.getElementById('email').addEventListener('blur', function() {
+            if (!validateEmail(this.value)) {
+                showError('emailError', 'Email không hợp lệ');
+            } else {
+                hideError('emailError');
+            }
+        });
+
+        document.getElementById('password').addEventListener('input', function() {
+            hideError('passwordError');
+        });
+
+        // Load users when page loads
+        document.addEventListener('DOMContentLoaded', loadUsers);
+    </script>
+</body>
+</html>

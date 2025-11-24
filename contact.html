@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liên hệ - 707-MSSV</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="nav-brand">707-MSSV</div>
+            <ul class="nav-menu">
+                <li><a href="index.html">Trang chủ</a></li>
+                <li><a href="baitap01.html">Bài tập 1</a></li>
+                <li><a href="baitap02.html">Bài tập 2</a></li>
+                <li><a href="baitap03.html">Bài tập 3</a></li>
+                <li><a href="about.html">Giới thiệu</a></li>
+                <li><a href="contact.html" class="active">Liên hệ</a></li>
+            </ul>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container">
+        <h1>Liên hệ</h1>
+        <div class="contact-content">
+            <div class="contact-info">
+                <h2>Thông tin liên hệ</h2>
+                <div class="contact-item">
+                    <strong>Email:</strong> dung01689364043@gmail.com
+                </div>
+                <div class="contact-item">
+                    <strong>MSSV:</strong> 231A010184
+                </div>
+                <div class="contact-item">
+                    <strong>Lớp:</strong> Lập trình web (INT4407)
+                </div>
+                <div class="contact-item">
+                    <strong>Trường:</strong> Đại học Văn Hiến
+                </div>
+            </div>
+            
+            <form class="contact-form">
+                <h2>Gửi tin nhắn</h2>
+                <div class="form-group">
+                    <label for="contactName">Họ tên:</label>
+                    <input type="text" id="contactName" required>
+                </div>
+                <div class="form-group">
+                    <label for="contactEmail">Email:</label>
+                    <input type="email" id="contactEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="contactMessage">Tin nhắn:</label>
+                    <textarea id="contactMessage" rows="5" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Gửi tin nhắn</button>
+            </form>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 707-MSSV. All rights reserved.</p>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
